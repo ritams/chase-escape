@@ -115,17 +115,27 @@ def create_comparison_plot():
             rotation=0, verticalalignment='top', fontsize=12, color='red')
     
     # Customize plot
-    ax.set_xlabel('p', fontsize=16, fontweight='bold')
-    ax.set_ylabel('Escape Probability', fontsize=16, fontweight='bold')
-    ax.set_title('Chase-Escape Dynamics: Size Dependence', fontsize=18, fontweight='bold', pad=20)
+    ax.set_xlabel(r'$\lambda$', fontsize=16)
+    ax.set_ylabel('Escape Probability', fontsize=16)
+    
+    # Make xticks bold
+    ax.tick_params(axis='x', labelsize=12)
+    for label in ax.get_xticklabels():
+        label.set_fontweight('bold')
+    
+    # Make yticks bold
+    ax.tick_params(axis='y', labelsize=12)
+    for label in ax.get_yticklabels():
+        label.set_fontweight('bold')
+    
     
     # Grid and styling
     ax.grid(True, alpha=0.3)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     
-    # Legend ordered by L value
-    ax.legend(frameon=True, fancybox=True, shadow=True, fontsize=12)
+    # Legend ordered by L value (no border)
+    ax.legend(frameon=False, fontsize=12)
     
     plt.tight_layout()
     plt.savefig('comparison_plot.png', format='png', bbox_inches='tight', dpi=300)
