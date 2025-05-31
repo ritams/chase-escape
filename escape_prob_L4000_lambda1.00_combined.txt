@@ -1,7 +1,3 @@
-# Combined results from parallel chase escape simulations
-# Total realizations: 10000
-# Number of jobs: 1000
-# p	escape_probability	std_error
 1.9500	0.003600	0.000589
 1.9550	0.015700	0.001234
 1.9600	0.071200	0.002575
