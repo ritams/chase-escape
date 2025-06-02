@@ -222,12 +222,12 @@ def save_lattice_snapshot(sites, iteration, p, lambda_rate, L, escaped):
             plt.xlabel('Column')
             plt.ylabel('Row')
             plt.tight_layout()
-            plt.savefig(f'./snapshots/near_criticality/lattice_snapshot_l_{L}_p_{p}_lambda_{lambda_rate}_iter_{iteration:06d}.png', dpi=150, bbox_inches='tight')
-            # np.savetxt(f'./snapshots/near_criticality/lattice_snapshot_l_{L}_p_{p}_lambda_{lambda_rate}_iter_{iteration:06d}.txt', sites)
+            plt.savefig(f'./lattice_snapshot_l_{L}_p_{p}_lambda_{lambda_rate}_iter_{iteration:06d}.png', dpi=150, bbox_inches='tight')
+            # np.savetxt(f'./lattice_snapshot_l_{L}_p_{p}_lambda_{lambda_rate}_iter_{iteration:06d}.txt', sites)
             plt.close()
 
 # Run single realization with image output
-p = 2.5
+p = 1.978
 lambda_rate = 1.0
 L = 250
 
