@@ -274,9 +274,6 @@ def save_lattice_snapshot(sites, iteration, p, lambda_rate, L, escaped, converte
     plt.gca().set_aspect('equal')
     
 
-    # Labels and title
-    plt.xlabel('Column', fontsize=12)
-    plt.ylabel('Row', fontsize=12)
     plt.title(f'Chase-Escape Lattice ($p$={p}, $\\lambda$={lambda_rate}, $L$={L})\n'
               f'Iteration: {iteration}, Escaped: {escaped}', fontsize=14, pad=20)
     
