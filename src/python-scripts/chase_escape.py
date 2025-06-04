@@ -212,19 +212,92 @@ def single_realization_simulation(p, lambda_rate, L):
     return escaped
 
 def save_lattice_snapshot(sites, iteration, p, lambda_rate, L, escaped):
-     # Save lattice snapshot as image
-            plt.figure(figsize=(8, 8))
-            colors = ['white', 'blue', 'red']
-            cmap = plt.matplotlib.colors.ListedColormap(colors)
-            plt.imshow(sites, cmap=cmap, vmin=0, vmax=2)
-            plt.title(f'Chase-Escape Lattice (p={p}, λ={lambda_rate}, L={L})\nEscaped: {escaped}')
-            plt.colorbar(ticks=[0, 1, 2], label='Site Type')
-            plt.xlabel('Column')
-            plt.ylabel('Row')
-            plt.tight_layout()
-            plt.savefig(f'./snapshots/near_criticality/lattice_snapshot_l_{L}_p_{p}_lambda_{lambda_rate}_iter_{iteration:06d}.png', dpi=150, bbox_inches='tight')
-            # np.savetxt(f'./snapshots/near_criticality/lattice_snapshot_l_{L}_p_{p}_lambda_{lambda_rate}_iter_{iteration:06d}.txt', sites)
-            plt.close()
+    # Create figure with better styling
+    plt.figure(figsize=(12, 12))
+    plt.style.use('default')  # Clean style
+    
+    # Define visualization parameters
+    empty_size = 8      # Small size for empty sites
+    active_size = 25    # Larger size for active sites
+    
+    # Define colors - using colorblind-friendly palette
+    empty_color = '#f0f0f0'    # Light gray
+    predator_color = '#1f77b4'  # Blue
+    prey_color = '#d62728'      # Red
+    
+    # Get coordinates for each site type
+    empty_sites = np.where(sites == 0)
+    predator_sites = np.where(sites == 1)
+    prey_sites = np.where(sites == 2)
+    
+    # Plot empty sites (small circles, light gray)
+    if len(empty_sites[0]) > 0:
+        plt.scatter(empty_sites[1], empty_sites[0], 
+                   s=empty_size, c=empty_color, marker='o', 
+                   alpha=0.3, edgecolors='none', label='Empty')
+    
+    # Plot predator sites (blue squares, larger)
+    if len(predator_sites[0]) > 0:
+        plt.scatter(predator_sites[1], predator_sites[0], 
+                   s=active_size, c=predator_color, marker='s', 
+                   alpha=0.8, edgecolors='darkblue', linewidth=0.5, label='Predators')
+    
+    # Plot prey sites (red circles, larger)
+    if len(prey_sites[0]) > 0:
+        plt.scatter(prey_sites[1], prey_sites[0], 
+                   s=active_size, c=prey_color, marker='o', 
+                   alpha=0.8, edgecolors='darkred', linewidth=0.5, label='Prey')
+    
+    # Set up the plot
+    plt.xlim(-0.5, L-0.5)
+    plt.ylim(-0.5, L-0.5)
+    plt.gca().invert_yaxis()  # Invert y-axis to match array indexing
+    plt.gca().set_aspect('equal')
+    
+    # Add grid for better visualization
+    plt.grid(True, alpha=0.2, linestyle='-', linewidth=0.5)
+    
+    # Labels and title
+    plt.xlabel('Column', fontsize=12)
+    plt.ylabel('Row', fontsize=12)
+    plt.title(f'Chase-Escape Lattice (p={p}, λ={lambda_rate}, L={L})\n'
+              f'Iteration: {iteration}, Escaped: {escaped}', fontsize=14, pad=20)
+    
+    # Add legend
+    plt.legend(loc='upper right', bbox_to_anchor=(1.15, 1), fontsize=10)
+    
+    # Add border around the lattice
+    border = plt.matplotlib.patches.Rectangle((-0.5, -0.5), L, L, 
+                                            fill=False, edgecolor='black', linewidth=2)
+    plt.gca().add_patch(border)
+    
+    # Highlight escape boundaries (edges where prey can escape)
+    escape_color = 'gold'
+    escape_width = 3
+    
+    # Left boundary (x=0)
+    plt.axvline(x=-0.5, color=escape_color, linewidth=escape_width, alpha=0.7)
+    # Right boundary (x=L-1)  
+    plt.axvline(x=L-0.5, color=escape_color, linewidth=escape_width, alpha=0.7)
+    # Top boundary (y=0)
+    plt.axhline(y=-0.5, color=escape_color, linewidth=escape_width, alpha=0.7)
+    # Bottom boundary (y=L-1)
+    plt.axhline(y=L-0.5, color=escape_color, linewidth=escape_width, alpha=0.7)
+    
+    # Add statistics text
+    num_empty = np.sum(sites == 0)
+    num_predators = np.sum(sites == 1)
+    num_prey = np.sum(sites == 2)
+    
+    stats_text = f'Empty: {num_empty}\nPredators: {num_predators}\nPrey: {num_prey}'
+    plt.text(0.02, 0.98, stats_text, transform=plt.gca().transAxes, 
+             fontsize=10, verticalalignment='top', 
+             bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
+    
+    plt.tight_layout()
+    plt.savefig(f'./snapshots/near_criticality/lattice_snapshot_l_{L}_p_{p}_lambda_{lambda_rate}_iter_{iteration:06d}.png', 
+                dpi=150, bbox_inches='tight')
+    plt.close()
 
 # Run single realization with image output
 p = 2.5

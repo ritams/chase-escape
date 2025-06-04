@@ -1,5 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pickle
+import os
+import glob
+from matplotlib import rcParams
+import matplotlib.ticker as ticker
+from matplotlib.colors import hsv_to_rgb
+
 
 # The function below takes the spreading rate of prey (p), the spontaneous conversion rate (lambda_rate),
 # and the lattice size L for an L x L square lattice as input and simulates a single realization of the 
@@ -212,19 +219,79 @@ def single_realization_simulation(p, lambda_rate, L):
     return escaped
 
 def save_lattice_snapshot(sites, iteration, p, lambda_rate, L, escaped):
-     # Save lattice snapshot as image
-            plt.figure(figsize=(8, 8))
-            colors = ['white', 'blue', 'red']
-            cmap = plt.matplotlib.colors.ListedColormap(colors)
-            plt.imshow(sites, cmap=cmap, vmin=0, vmax=2)
-            plt.title(f'Chase-Escape Lattice (p={p}, λ={lambda_rate}, L={L})\nEscaped: {escaped}')
-            plt.colorbar(ticks=[0, 1, 2], label='Site Type')
-            plt.xlabel('Column')
-            plt.ylabel('Row')
-            plt.tight_layout()
-            plt.savefig(f'./lattice_snapshot_l_{L}_p_{p}_lambda_{lambda_rate}_iter_{iteration:06d}.png', dpi=150, bbox_inches='tight')
-            # np.savetxt(f'./lattice_snapshot_l_{L}_p_{p}_lambda_{lambda_rate}_iter_{iteration:06d}.txt', sites)
-            plt.close()
+
+    os.environ['PATH'] += ':/Library/TeX/texbin'
+    rcParams['text.usetex'] = True
+    rcParams['font.family'] = "Times New Roman"
+
+    rcParams['xtick.labelsize'] = 15
+    rcParams['ytick.labelsize'] = 15
+
+
+    rcParams['xtick.major.width'] = 1
+    rcParams['xtick.minor.width'] = 1
+    rcParams['xtick.major.size'] = 4
+    rcParams['xtick.minor.size'] = 0
+
+    rcParams['ytick.major.width'] = 1
+    rcParams['ytick.minor.width'] = 1
+    rcParams['ytick.major.size'] = 4
+    rcParams['ytick.minor.size'] = 0
+
+    rcParams['ytick.right'] = True
+    rcParams['ytick.labelright'] = False
+    rcParams['xtick.top'] = True
+    rcParams['xtick.labeltop'] = False
+
+    rcParams['axes.labelsize'] = 15
+    rcParams['axes.edgecolor'] = 'black'
+    rcParams['axes.linewidth'] = 1.1
+    rcParams['axes.xmargin'] = 0.01
+    rcParams['axes.spines.top'] = True
+    rcParams["axes.axisbelow"]  = False
+    rcParams["boxplot.meanline"] = True 
+    rcParams['legend.frameon'] = False
+    rcParams['xtick.direction'] = 'in'
+    rcParams['ytick.direction'] = 'in'
+    # Create figure with better styling
+    plt.figure(figsize=(12, 12))
+    
+    # Define size of the markers
+    predator_size = 2
+    prey_size = 2
+    
+    # Define colors
+    predator_color = 'blue'  # Blue
+    prey_color = 'red'      # Red
+    
+    # Get coordinates for each site type
+    empty_sites = np.where(sites == 0)
+    predator_sites = np.where(sites == 1)
+    prey_sites = np.where(sites == 2)
+    
+    if len(predator_sites[0]) > 0:
+        plt.plot(predator_sites[1], predator_sites[0], 'o', color=predator_color, markersize=predator_size)
+    
+    if len(prey_sites[0]) > 0:
+        plt.plot(prey_sites[1], prey_sites[0], 'o', color=prey_color, markersize=prey_size)
+    
+    # Set up the plot
+    plt.xlim(0, L)
+    plt.ylim(0, L)
+    plt.gca().set_aspect('equal')
+    
+
+    # Labels and title
+    plt.xlabel('Column', fontsize=12)
+    plt.ylabel('Row', fontsize=12)
+    plt.title(f'Chase-Escape Lattice ($p$={p}, $\\lambda$={lambda_rate}, $L$={L})\n'
+              f'Iteration: {iteration}, Escaped: {escaped}', fontsize=14, pad=20)
+    
+    
+    plt.tight_layout()
+    plt.savefig(f'./lattice_snapshot_l_{L}_p_{p}_lambda_{lambda_rate}_iter_{iteration:06d}.png', 
+                dpi=150, bbox_inches='tight')
+    plt.close()
 
 # Run single realization with image output
 p = 2.5
