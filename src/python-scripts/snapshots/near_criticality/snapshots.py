@@ -23,25 +23,11 @@ def single_realization_simulation(p, lambda_rate, L):
     # Initialize the lattice with all empty sites
     sites = np.zeros((L, L), dtype=int)
     
-    # ORIGINAL INITIAL CONDITIONS (COMMENTED OUT)
-    # Set initial conditions (first column blue, second column red)
-    # sites[:, 0] = 1
-    # sites[:, 1] = 2
-
     # Initialize lists to store BR and RE bonds
     BR_bonds = [] # List to store BR bonds
     RE_bonds = [] # List to store RE bonds
     red_sites = [] # List to store all red site coordinates
-        
-    # ORIGINAL BOND INITIALIZATION (COMMENTED OUT)    
-    # Create initial BR and RE bonds along the lattice
-    # Also populate the initial red sites list
-    # for i in range(L):
-    #     BR_bond = [(i, 0), (i, 1)] # BR bond connects first and second column
-    #     RE_bond = [(i, 1), (i, 2)] # RE bond connects second and third column
-    #     BR_bonds.append(BR_bond)
-    #     RE_bonds.append(RE_bond)
-    #     red_sites.append((i, 1)) # All sites in column 1 are initially red
+  
 
     # NEW INITIAL CONDITIONS: Single red site in the middle
     middle_i = L // 2
@@ -66,6 +52,8 @@ def single_realization_simulation(p, lambda_rate, L):
     
     iteration = 0
     escaped = 'unknown'
+    converted_red_x = []
+    converted_red_y = []
     while escaped == 'unknown':
         rnd = np.random.uniform()
         num_BR_bonds = len(BR_bonds)
@@ -75,7 +63,7 @@ def single_realization_simulation(p, lambda_rate, L):
         # Check termination condition - no red sites left
         if num_red_sites == 0:
             escaped = False
-            save_lattice_snapshot(sites, iteration, p, lambda_rate, L, escaped)
+            save_lattice_snapshot(sites, iteration, p, lambda_rate, L, escaped, converted_red_x, converted_red_y)
             continue
             
         # Calculate total rate and probabilities
@@ -143,7 +131,7 @@ def single_realization_simulation(p, lambda_rate, L):
             # square lattice
             if j == L - 1 or j == 0 or i == L - 1 or i == 0:
                 escaped = True
-                save_lattice_snapshot(sites, iteration, p, lambda_rate, L, escaped)
+                save_lattice_snapshot(sites, iteration, p, lambda_rate, L, escaped, converted_red_x, converted_red_y)
                 continue
 
             # identify the neighbors of the newly turned red site (i,j)    
@@ -180,6 +168,8 @@ def single_realization_simulation(p, lambda_rate, L):
             red_site = red_sites.pop(index)
             i, j = red_site
             sites[i, j] = 1 # convert red site to blue
+            converted_red_y.append(i)
+            converted_red_x.append(j)
             
             # identify the neighbors of the newly turned blue site (i,j)
             up = ((i - 1) % L, j)
@@ -214,11 +204,11 @@ def single_realization_simulation(p, lambda_rate, L):
 
         iteration += 1
         if iteration % 1000 == 0 or escaped == True:
-            save_lattice_snapshot(sites, iteration, p, lambda_rate, L, escaped)
+            save_lattice_snapshot(sites, iteration, p, lambda_rate, L, escaped, converted_red_x, converted_red_y)
 
     return escaped
 
-def save_lattice_snapshot(sites, iteration, p, lambda_rate, L, escaped):
+def save_lattice_snapshot(sites, iteration, p, lambda_rate, L, escaped, converted_red_x, converted_red_y):
 
     os.environ['PATH'] += ':/Library/TeX/texbin'
     rcParams['text.usetex'] = True
@@ -274,6 +264,9 @@ def save_lattice_snapshot(sites, iteration, p, lambda_rate, L, escaped):
     
     if len(prey_sites[0]) > 0:
         plt.plot(prey_sites[1], prey_sites[0], 'o', color=prey_color, markersize=prey_size)
+
+    if len(converted_red_x) > 0:
+        plt.plot(converted_red_x, converted_red_y, 'o', color='yellow', markersize=prey_size)
     
     # Set up the plot
     plt.xlim(0, L)
@@ -281,9 +274,6 @@ def save_lattice_snapshot(sites, iteration, p, lambda_rate, L, escaped):
     plt.gca().set_aspect('equal')
     
 
-    # Labels and title
-    plt.xlabel('Column', fontsize=12)
-    plt.ylabel('Row', fontsize=12)
     plt.title(f'Chase-Escape Lattice ($p$={p}, $\\lambda$={lambda_rate}, $L$={L})\n'
               f'Iteration: {iteration}, Escaped: {escaped}', fontsize=14, pad=20)
     
